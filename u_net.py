@@ -1,0 +1,72 @@
+import os
+
+import numpy as np
+from PIL import Image
+from keras import Input, Model
+from keras.activations import softmax
+from keras.layers import concatenate, BatchNormalization, Conv2D, Activation, MaxPooling2D, UpSampling2D, Reshape
+from matplotlib import pyplot as plt
+from image_load import ImageMaskGenerator
+
+# See last layer of network
+from keras.optimizers import RMSprop
+
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+
+def softMaxAxis3(x):
+    return softmax(x, axis=3)
+
+
+def my_conv(x, filters, kernel_size=3, padding='same', kernel_initializer='he_normal'):
+    x = Conv2D(filters, kernel_size, padding=padding, kernel_initializer=kernel_initializer)(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    return x
+
+
+def u_net(num_classes, img_size):
+    inputs = Input(shape=(img_size, img_size, 1))
+
+    # Encoder
+    conv1 = my_conv(inputs, filters=8)
+    pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
+    conv2 = my_conv(pool1, filters=16)
+    pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
+    conv3 = my_conv(pool2, filters=32)
+    pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
+    conv4 = my_conv(pool3, filters=64)
+    pool4 = MaxPooling2D(pool_size=(2, 2))(conv4)
+    conv5 = my_conv(pool4, filters=128)
+    pool5 = MaxPooling2D(pool_size=(2, 2))(conv5)
+    conv6 = my_conv(pool5, filters=256)
+    pool6 = MaxPooling2D(pool_size=(2, 2))(conv6)
+    conv7 = my_conv(pool6, filters=512)
+
+    # Decoder
+    up4 = my_conv(conv7, filters=256)
+    up4 = UpSampling2D(size=(2, 2))(up4)
+    merge4 = concatenate([conv6, up4], axis=3)
+    up5 = my_conv(merge4, filters=128)
+    up5 = UpSampling2D(size=(2, 2))(up5)
+    merge5 = concatenate([conv5, up5], axis=3)
+    up6 = my_conv(merge5, filters=64)
+    up6 = UpSampling2D(size=(2, 2))(up6)
+    merge6 = concatenate([conv4, up6], axis=3)
+    up7 = my_conv(merge6, filters=32)
+    up7 = UpSampling2D(size=(2, 2))(up7)
+    merge7 = concatenate([conv3, up7], axis=3)
+    up8 = my_conv(merge7, filters=16)
+    up8 = UpSampling2D(size=(2, 2))(up8)
+    merge8 = concatenate([conv2, up8], axis=3)
+    up9 = my_conv(merge8, filters=8)
+    up9 = UpSampling2D(size=(2, 2))(up9)
+    merge9 = concatenate([conv1, up9], axis=3)
+
+    # Perform softmax on each pixel, so axis should be 3 because output has shape: batch_size x 64 x 64 x num_classes
+    conv11 = Conv2D(num_classes, 1, activation=softMaxAxis3)(merge9)
+
+    model = Model(inputs, conv11)
+    model.summary()
+    model.compile(optimizer=RMSprop(learning_rate=0.01), loss='mse')
+    return model
