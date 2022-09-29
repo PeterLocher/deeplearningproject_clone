@@ -4,8 +4,10 @@ import tensorflow as tf
 from keras.applications.mobilenet import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
 
-image_path = "P:\SatelliteData\China\Rural\images_png"
-mask_path = "P:\SatelliteData\China\Rural\masks_png"
+import constants
+
+image_path = constants.data_path + "/images_png"
+mask_path = constants.data_path + "/masks_png"
 
 
 def preprocess_image(image):

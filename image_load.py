@@ -2,6 +2,8 @@ import os
 import numpy as np
 from PIL import Image, ImageOps
 
+import constants
+
 
 def to_one_hot(masks):
     samples, w, h = masks.shape
@@ -39,10 +41,10 @@ def one_hot_to_rgb(masks):
 
 
 class ImageMaskGenerator:
-    image_path = "P:/SatelliteData/China/Rural/images_png"
-    mask_path = "P:/SatelliteData/China/Rural/masks_png"
+    image_path = constants.data_path + "/images_png"
+    mask_path = constants.data_path + "/masks_png"
 
-    image_names = os.listdir(image_path + "/img")
+    image_names = os.listdir(image_path)
     current_sample = 0
 
     def next_samples(self, number_of_samples=8):
@@ -50,8 +52,8 @@ class ImageMaskGenerator:
         images_to_load = self.image_names[self.current_sample:self.current_sample + number_of_samples]
         self.current_sample += number_of_samples
         for image_name in images_to_load:
-            image = np.asarray(ImageOps.grayscale(Image.open(self.image_path + "/img/" + image_name)))
-            mask = np.asarray(Image.open(self.mask_path + "/img/" + image_name))
+            image = np.asarray(ImageOps.grayscale(Image.open(self.image_path + "/" + image_name)))
+            mask = np.asarray(Image.open(self.mask_path + "/" + image_name))
             images.append(image)
             masks.append(mask)
         images = np.asarray(images)

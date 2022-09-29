@@ -1,0 +1,1 @@
+data_path = "C:/Users/locpe/PycharmProjects/deeplearningproject/China/Train/Rural"
