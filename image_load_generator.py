@@ -3,6 +3,7 @@ import numpy as np
 import tensorflow as tf
 from keras.applications.mobilenet import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
+from keras.utils import Sequence
 
 import constants
 

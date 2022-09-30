@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from PIL import Image, ImageOps
+from keras.utils import Sequence
 
 import constants
 
@@ -24,7 +25,7 @@ def from_one_hot(masks):
     for sample in range(samples):
         for x in range(w):
             for y in range(h):
-                index = np.argmax(masks[sample, x, y])*30
+                index = np.argmax(masks[sample, x, y]) * 30
                 label_masks[sample, x, y] = index
     return np.uint8(label_masks.astype(int))
 
@@ -35,17 +36,24 @@ def one_hot_to_rgb(masks):
     for sample in range(samples):
         for x in range(w):
             for y in range(h):
-                index = np.argmax(masks[sample, x, y])*30
+                index = np.argmax(masks[sample, x, y]) * 30
                 label_masks[sample, x, y] = (index, index, index)
     return np.uint8(label_masks.astype(int))
 
 
-class ImageMaskGenerator:
+class ImageMaskGenerator(Sequence):
     image_path = constants.data_path + "/images_png"
     mask_path = constants.data_path + "/masks_png"
+    img_size = 1024
 
-    image_names = os.listdir(image_path)
-    current_sample = 0
+    def __init__(self) -> None:
+        super().__init__()
+        self.batch_size = 8
+        self.image_names = os.listdir(self.image_path)
+        self.current_sample = 0
+
+    def set_up_as_sequence(self, batch_size=8):
+        self.batch_size = batch_size
 
     def next_samples(self, number_of_samples=8):
         images, masks = [], []
@@ -62,3 +70,9 @@ class ImageMaskGenerator:
         masks = to_one_hot(masks)
         print(images_to_load)
         return images, masks
+
+    def __getitem__(self, index):
+        return self.next_samples(self.batch_size)
+
+    def __len__(self):
+        return len(self.image_names) // self.batch_size
