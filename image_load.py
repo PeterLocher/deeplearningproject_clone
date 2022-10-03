@@ -45,15 +45,17 @@ class ImageMaskGenerator(Sequence):
     image_path = constants.data_path + "/images_png"
     mask_path = constants.data_path + "/masks_png"
     img_size = 1024
+    training_size = 64
+    batch_size = 8
 
     def __init__(self) -> None:
         super().__init__()
-        self.batch_size = 8
         self.image_names = os.listdir(self.image_path)
         self.current_sample = 0
 
-    def set_up_as_sequence(self, batch_size=8):
+    def set_up_as_sequence(self, training_size=64, batch_size=8):
         self.batch_size = batch_size
+        self.training_size = training_size
 
     def next_samples(self, number_of_samples=8):
         images, masks = [], []
@@ -75,4 +77,4 @@ class ImageMaskGenerator(Sequence):
         return self.next_samples(self.batch_size)
 
     def __len__(self):
-        return len(self.image_names) // self.batch_size
+        return self.training_size // self.batch_size

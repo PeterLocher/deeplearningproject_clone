@@ -18,6 +18,14 @@ def train_u_net(samples, epochs, batch_size):
     model.save("model_unet_" + str(samples) + "_" + str(epochs) + "_" + str(batch_size))
 
 
+def train_u_net_g(samples, epochs, batch_size):
+    gen = ImageMaskGenerator()
+    gen.set_up_as_sequence(samples, batch_size)
+    model = u_net(8, 1024)
+    model.fit(gen, epochs=epochs, shuffle=True, verbose=1)
+    model.save("model_unet_g_" + str(samples) + "_" + str(epochs) + "_" + str(batch_size))
+
+
 def try_u_net(model):
     gen = ImageMaskGenerator()
     image_test, mask_test = gen.next_samples(2)
@@ -37,4 +45,5 @@ def try_u_net(model):
 
 
 #train_u_net(samples=128, epochs=30, batch_size=8)
-try_u_net(load_model("model_unet_128_30_8"))
+#train_u_net_g(samples=16, epochs=4, batch_size=8)
+try_u_net(load_model("model_unet_g_16_4_8"))
