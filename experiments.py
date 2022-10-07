@@ -5,6 +5,7 @@ from PIL import Image
 from keras.models import load_model
 from matplotlib import pyplot as plt
 
+import constants
 from image_load import ImageMaskGenerator, one_hot_to_rgb, from_one_hot
 from u_net import u_net
 
@@ -23,11 +24,21 @@ def train_u_net_g(samples_per_epoch, epochs, batch_size):
     gen.set_up_as_sequence(samples_per_epoch, batch_size)
     model = u_net(8, 1024)
     model.fit(gen, epochs=epochs, shuffle=True, verbose=1)
-    model.save("model_unet_g_" + str(samples_per_epoch) + "_" + str(epochs) + "_" + str(batch_size))
+    model.save("model_unet_" + str(samples_per_epoch * epochs) + "_" + str(epochs) + "_" + str(batch_size))
+
+
+def train_u_net_g_val(samples_per_epoch, epochs, batch_size):
+    gen = ImageMaskGenerator()
+    gen_val = ImageMaskGenerator(data_path=constants.validation_data_path)
+    gen.set_up_as_sequence(samples_per_epoch, batch_size)
+    gen_val.set_up_as_sequence(samples_per_epoch, batch_size)
+    model = u_net(8, 1024)
+    model.fit(gen, epochs=epochs, shuffle=True, verbose=1, validation_data=gen_val)
+    model.save("model_unet" + str(samples_per_epoch * epochs) + "_" + str(epochs) + "_" + str(batch_size))
 
 
 def try_u_net(model):
-    gen = ImageMaskGenerator()
+    gen = ImageMaskGenerator(data_path=constants.validation_data_path)
     image_test, mask_test = gen.next_samples(2)
     out = model.predict(image_test)
 
@@ -44,6 +55,13 @@ def try_u_net(model):
     img.save("out/" + "true_mask.png")
 
 
+def test_model(model):
+    gen = ImageMaskGenerator(data_path=constants.validation_data_path)
+    score = model.evaluate(gen, verbose=False)
+    print('Test score: ', score) 
+
+
 #train_u_net(samples=128, epochs=30, batch_size=8)
-train_u_net_g(samples_per_epoch=64, epochs=14, batch_size=8)
-try_u_net(load_model("model_unet_g_64_14_8"))
+#train_u_net_g_val(samples_per_epoch=8, epochs=2, batch_size=8)
+try_u_net(load_model("model_unet_128_30_8"))
+#test_model(load_model("model_unet_16_4_4"))

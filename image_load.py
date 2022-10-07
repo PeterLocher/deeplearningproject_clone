@@ -42,14 +42,14 @@ def one_hot_to_rgb(masks):
 
 
 class ImageMaskGenerator(Sequence):
-    image_path = constants.data_path + "/images_png"
-    mask_path = constants.data_path + "/masks_png"
     img_size = 1024
     training_size = 64
     batch_size = 8
 
-    def __init__(self) -> None:
+    def __init__(self, data_path=constants.training_data_path, images_folder="/images_png", masks_folder="/masks_png") -> None:
         super().__init__()
+        self.image_path = data_path + images_folder
+        self.mask_path = data_path + masks_folder
         self.image_names = os.listdir(self.image_path)
         self.current_sample = 0
 

@@ -2,10 +2,11 @@ import numpy as np
 from PIL import Image, ImageOps
 from matplotlib import pyplot as plt
 
+import constants
 from image_load import to_one_hot, from_one_hot, one_hot_to_rgb
 
-image_path = "P:/SatelliteData/China/Rural/images_png"
-mask_path = "P:/SatelliteData/China/Rural/masks_png"
+image_path = constants.training_data_path + "/images_png"
+mask_path = constants.training_data_path + "/masks_png"
 
 image_name = "2522.png"
 
