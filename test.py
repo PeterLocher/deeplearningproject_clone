@@ -5,24 +5,7 @@ from matplotlib import pyplot as plt
 import constants
 from image_load import to_one_hot, from_one_hot, one_hot_to_rgb
 
-image_path = constants.training_data_path + "/images_png"
-mask_path = constants.training_data_path + "/masks_png"
-
-image_name = "2522.png"
-
-image = np.asarray(ImageOps.grayscale(Image.open(image_path + "/img/" + image_name)))
-mask = np.asarray(Image.open(mask_path + "/img/" + image_name))
-
-masks = np.asarray([mask])
-
-print(mask)
-mask_2 = one_hot_to_rgb(to_one_hot(masks))[0]
-#print(np.equal(mask_2, mask))
-print(mask_2)
-img = Image.fromarray(np.uint8(mask_2), mode='RGB')
-img.save("out/" + "test.png")
-
-plt.imshow(mask_2, interpolation='nearest')
-plt.show()
-plt.plot()
-
+data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+print(data[0:0])
+print(data[8:3])
+print(data[8:12])

@@ -46,8 +46,10 @@ class ImageMaskGenerator(Sequence):
     training_size = 64
     batch_size = 8
 
-    def __init__(self, data_path=constants.training_data_path, images_folder="/images_png", masks_folder="/masks_png") -> None:
+    def __init__(self, data_path=constants.training_data_path, images_folder="/images_png",
+                 masks_folder="/masks_png", grayscale=True) -> None:
         super().__init__()
+        self.grayscale = grayscale
         self.image_path = data_path + images_folder
         self.mask_path = data_path + masks_folder
         self.image_names = os.listdir(self.image_path)
@@ -60,14 +62,24 @@ class ImageMaskGenerator(Sequence):
     def next_samples(self, number_of_samples=8):
         images, masks = [], []
         images_to_load = self.image_names[self.current_sample:self.current_sample + number_of_samples]
-        self.current_sample += number_of_samples
+        images_found = len(images_to_load)
+        if images_found < number_of_samples:
+            images_to_load = images_to_load + self.image_names[0:number_of_samples - images_found]
+            self.current_sample = number_of_samples - images_found
+        else:
+            self.current_sample += number_of_samples
         for image_name in images_to_load:
-            image = np.asarray(ImageOps.grayscale(Image.open(self.image_path + "/" + image_name)))
-            mask = np.asarray(Image.open(self.mask_path + "/" + image_name))
+            image = Image.open(self.image_path + "/" + image_name)
+            if self.grayscale:
+                image = ImageOps.grayscale(image)
+            image = np.asarray(image)
+            mask = Image.open(self.mask_path + "/" + image_name)
+            mask = np.asarray(mask)
             images.append(image)
             masks.append(mask)
         images = np.asarray(images)
-        images = np.expand_dims(images, axis=3)
+        if self.grayscale:
+            images = np.expand_dims(images, axis=3)
         masks = np.asarray(masks)
         masks = to_one_hot(masks)
         print(images_to_load)
