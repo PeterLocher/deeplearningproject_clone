@@ -19,7 +19,7 @@ def train_u_net(samples, epochs, batch_size):
     model.save("model_unet_" + str(samples) + "_" + str(epochs) + "_" + str(batch_size))
 
 
-def train_u_net_g(samples_per_epoch, epochs, batch_size, validate=False, grayscale=True, num_classes=8, img_size=1024):
+def train_u_net_g(samples_per_epoch, epochs, batch_size, validate=True, grayscale=True, num_classes=8, img_size=1024):
     gen = ImageMaskGenerator(data_path=constants.training_data_path, grayscale=grayscale)
     gen.set_up_as_sequence(samples_per_epoch, batch_size)
     gen_val = None
@@ -31,12 +31,12 @@ def train_u_net_g(samples_per_epoch, epochs, batch_size, validate=False, graysca
     model.save("model_unet_" + ("" if grayscale else "color_") + str(samples_per_epoch * epochs) + "_" + str(epochs) + "_" + str(batch_size))
 
 
-def try_u_net(model):
-    gen = ImageMaskGenerator(data_path=constants.validation_data_path)
+def try_u_net(model, grayscale=True):
+    gen = ImageMaskGenerator(data_path=constants.validation_data_path, grayscale=grayscale)
     image_test, mask_test = gen.next_samples(2)
     out = model.predict(image_test)
 
-    img = Image.fromarray(np.squeeze(image_test[0]), mode="L")
+    img = Image.fromarray(np.squeeze(image_test[0]), mode="L") if grayscale else Image.fromarray(image_test[0], mode="RGB")
     img.save("out/" + "image.png")
 
     img = Image.fromarray(one_hot_to_rgb(out)[0], mode='RGB')
@@ -49,13 +49,16 @@ def try_u_net(model):
     img.save("out/" + "true_mask.png")
 
 
-def test_model(model):
-    gen = ImageMaskGenerator(data_path=constants.validation_data_path)
-    score = model.evaluate(gen, verbose=False)
-    print('Test score: ', score) 
+def test_model(model, grayscale=True):
+    print(model.metrics_names)
+    gen = ImageMaskGenerator(data_path=constants.validation_data_path, grayscale=grayscale)
+    loss = model.evaluate(gen, verbose=False)
+    print('Test loss: ', loss)
 
 
 #train_u_net(samples=128, epochs=30, batch_size=8)
-train_u_net_g(samples_per_epoch=64, epochs=14, batch_size=8, validate=True, grayscale=False)
-#try_u_net(load_model("model_unet_128_30_8"))
-#test_model(load_model("model_unet_16_4_4"))
+#train_u_net_g(samples_per_epoch=64, epochs=14, batch_size=8, validate=True, grayscale=False)
+#try_u_net(load_model("model_unet_896_14_8"))
+#test_model(load_model("model_unet_896_14_8"))
+#test_model(load_model("model_unet_color_896_14_8"), grayscale=False)
+test_model(load_model("model_kar_unet_896_14_8"), grayscale=True)
