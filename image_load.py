@@ -7,6 +7,8 @@ import constants
 
 
 def to_one_hot(masks):
+    if len(masks.shape) == 4:
+        masks = masks[:, :, :, 0]
     samples, w, h = masks.shape
     masks = np.expand_dims(masks, axis=3)
     masks = np.concatenate((masks, np.zeros((samples, w, h, 7))), axis=3)
@@ -73,7 +75,8 @@ class ImageMaskGenerator(Sequence):
             if self.grayscale:
                 image = ImageOps.grayscale(image)
             image = np.asarray(image)
-            mask = Image.open(self.mask_path + "/" + image_name)
+            mask_file_type = self.mask_path[len(self.mask_path) - 3:]
+            mask = Image.open(self.mask_path + "/" + image_name[0:len(image_name) - 3] + mask_file_type)
             mask = np.asarray(mask)
             images.append(image)
             masks.append(mask)
@@ -82,7 +85,7 @@ class ImageMaskGenerator(Sequence):
             images = np.expand_dims(images, axis=3)
         masks = np.asarray(masks)
         masks = to_one_hot(masks)
-        print(images_to_load)
+        print(images_to_load, images.shape, masks.shape)
         return images, masks
 
     def __getitem__(self, index):

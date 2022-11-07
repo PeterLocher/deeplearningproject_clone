@@ -8,7 +8,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 
 
-# Utility function for showing images
+# Utility function for showing images_png
 def show_imgs(x_test, n=10):
     sz = x_test.shape[1]
     plt.figure(figsize=(20, 4))
@@ -47,7 +47,7 @@ x_test /= 255
 y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
-print('Examples of test images')
+print('Examples of test images_png')
 show_imgs(x_test)
 
 import numpy as np

@@ -1,18 +1,21 @@
-import keras
+from keras import metrics as met
 import tensorflow.python
 import numpy as np
 from PIL import Image
 from keras.models import load_model
 from matplotlib import pyplot as plt
+import keras_unet.utils as ku
 
 import constants
 from image_load import ImageMaskGenerator, one_hot_to_rgb, from_one_hot
 from u_net import u_net_gray, u_net_color
 
+metrics = [met.Accuracy(), met.MeanSquaredError(name="mse")]
+
 
 def train_u_net(samples, epochs, batch_size):
     gen = ImageMaskGenerator()
-    model = u_net_gray(8, 1024)
+    model = u_net_gray(8, 1024,metrics=metrics)
     image_data, mask_data = gen.next_samples(samples)
     print("Samples generated")
     model.fit(image_data, mask_data, epochs=epochs, batch_size=batch_size, shuffle=True, verbose=1)
@@ -26,9 +29,11 @@ def train_u_net_g(samples_per_epoch, epochs, batch_size, validate=True, grayscal
     if validate:
         gen_val = ImageMaskGenerator(data_path=constants.validation_data_path, grayscale=grayscale)
         gen_val.set_up_as_sequence(samples_per_epoch, batch_size)
-    model = (u_net_gray if grayscale else u_net_color)(num_classes, img_size)
-    model.fit(gen, epochs=epochs, shuffle=True, verbose=1, validation_data=gen_val)
+    model = (u_net_gray if grayscale else u_net_color)(num_classes, img_size, metrics=metrics)
+    history = model.fit(gen, epochs=epochs, shuffle=True, verbose=1, validation_data=gen_val)
     model.save("model_unet_" + ("" if grayscale else "color_") + str(samples_per_epoch * epochs) + "_" + str(epochs) + "_" + str(batch_size))
+    ku.plot_segm_history(history, metrics=["accuracy"], losses=["mse"])
+
 
 
 def try_u_net(model, grayscale=True):
@@ -61,4 +66,5 @@ def test_model(model, grayscale=True):
 #try_u_net(load_model("model_unet_896_14_8"))
 #test_model(load_model("model_unet_896_14_8"))
 #test_model(load_model("model_unet_color_896_14_8"), grayscale=False)
-test_model(load_model("model_kar_unet_896_14_8"), grayscale=True)
+#test_model(load_model("model_kar_poland_unet_color_896_14_8"), grayscale=False)
+#test_model(load_model("model_kar_poland_unet_color_1984_31_8"), grayscale=False)

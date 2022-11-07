@@ -6,10 +6,10 @@ import os
 
 import cv2
 
-IMGS_DIR = "./images"
-MASKS_DIR = "./masks"
-OUTPUT_DIR = "Poland_1024/images"
-OUTPUT_DIR_MASK = "Poland_1024/masks"
+IMGS_DIR = "./images_png"
+MASKS_DIR = "./masks_png"
+OUTPUT_DIR = "Poland_1024/images_png"
+OUTPUT_DIR_MASK = "Poland_1024/masks_png"
 
 TARGET_SIZE = 1024
 

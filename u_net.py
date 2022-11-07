@@ -20,7 +20,7 @@ def conv_layer(x, filters, kernel_size=3, padding='same', kernel_initializer='he
     return x
 
 
-def u_net_gray(num_classes, img_size):
+def u_net_gray(num_classes, img_size, metrics=[]):
     inputs = Input(shape=(img_size, img_size, 1))
 
     # Encoder
@@ -63,11 +63,11 @@ def u_net_gray(num_classes, img_size):
 
     model = Model(inputs, conv11)
     model.summary()
-    model.compile(optimizer=RMSprop(learning_rate=0.01), loss='mse')
+    model.compile(optimizer=RMSprop(learning_rate=0.01), loss='mse', metrics=metrics)
     return model
 
 
-def u_net_color(num_classes, img_size):
+def u_net_color(num_classes, img_size, metrics=[]):
     inputs = Input(shape=(img_size, img_size, 3))
 
     # Encoder
@@ -110,5 +110,5 @@ def u_net_color(num_classes, img_size):
 
     model = Model(inputs, conv11)
     model.summary()
-    model.compile(optimizer=RMSprop(learning_rate=0.01), loss='mse')
+    model.compile(optimizer=RMSprop(learning_rate=0.01), loss='mse', metrics=metrics)
     return model
