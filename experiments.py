@@ -61,7 +61,7 @@ def plot_images(org_imgs, mask_imgs, pred_imgs=None, grayscale=True, figsize=4):
 
 
 def try_u_net(model, grayscale=True):
-    gen = ImageMaskGenerator(data_path=constants.validation_data_path, grayscale=grayscale)
+    gen = ImageMaskGenerator(data_path=constants.test_data_path, grayscale=grayscale)
     image_test, mask_test = gen.next_samples(5)
     out = model.predict(image_test)
     mask_images = one_hot_to_rgb(mask_test)
@@ -87,7 +87,7 @@ def test_model(model, grayscale=True):
 
 #train_u_net(samples=128, epochs=30, batch_size=8)
 #train_u_net_g(samples_per_epoch=64, epochs=14, batch_size=8, validate=True, grayscale=False)
-try_u_net(load_model("model_kar_poland_unet_color_1984_31_8"), grayscale=False)
+try_u_net(load_model("model_kar_poland_unet_color_1984_62_8"), grayscale=False)
 #test_model(load_model("model_unet_896_14_8"))
 #test_model(load_model("model_unet_color_896_14_8"), grayscale=False)
 #test_model(load_model("model_kar_poland_unet_color_896_14_8"), grayscale=False)

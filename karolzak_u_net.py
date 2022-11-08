@@ -26,4 +26,4 @@ def train_u_net_g(samples_per_epoch, epochs, batch_size, validate=True, grayscal
     ku.plot_segm_history(history, metrics=["accuracy", "mse"], losses=["mse"])
 
 
-train_u_net_g(8, 24, 4, grayscale=False)
+train_u_net_g(64, 31, 8, grayscale=False)
