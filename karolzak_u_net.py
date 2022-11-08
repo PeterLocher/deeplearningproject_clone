@@ -23,7 +23,7 @@ def train_u_net_g(samples_per_epoch, epochs, batch_size, validate=True, grayscal
     model.compile(optimizer=RMSprop(learning_rate=0.01), loss='mse', metrics=metrics)
     history = model.fit(gen, epochs=epochs, shuffle=True, verbose=1, validation_data=gen_val)
     model.save("model_kar_poland_unet_" + ("" if grayscale else "color_") + str(samples_per_epoch * epochs) + "_" + str(epochs) + "_" + str(batch_size))
-    ku.plot_segm_history(history, metrics=["accuracy", "mse"], losses=["mse"])
+    ku.plot_segm_history(history, metrics=["val_accuracy"], losses=["mse", "val_loss"])
 
 
-train_u_net_g(64, 31, 8, grayscale=False)
+train_u_net_g(32, 62, 8, grayscale=False)

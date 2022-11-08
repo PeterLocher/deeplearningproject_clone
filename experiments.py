@@ -32,7 +32,7 @@ def train_u_net_g(samples_per_epoch, epochs, batch_size, validate=True, grayscal
     model = (u_net_gray if grayscale else u_net_color)(num_classes, img_size, metrics=metrics)
     history = model.fit(gen, epochs=epochs, shuffle=True, verbose=1, validation_data=gen_val)
     model.save("model_unet_" + ("" if grayscale else "color_") + str(samples_per_epoch * epochs) + "_" + str(epochs) + "_" + str(batch_size))
-    ku.plot_segm_history(history, metrics=["accuracy", "mse"], losses=["mse"])
+    ku.plot_segm_history(history,  metrics=["val_accuracy"], losses=["mse", "val_loss"])
 
 
 def plot_images(org_imgs, mask_imgs, pred_imgs=None, grayscale=True, figsize=4):
@@ -87,8 +87,8 @@ def test_model(model, grayscale=True):
 
 #train_u_net(samples=128, epochs=30, batch_size=8)
 #train_u_net_g(samples_per_epoch=64, epochs=14, batch_size=8, validate=True, grayscale=False)
-try_u_net(load_model("model_kar_poland_unet_color_1984_62_8"), grayscale=False)
+#try_u_net(load_model("model_poland_unet_color_1984_31_8"), grayscale=False)
 #test_model(load_model("model_unet_896_14_8"))
 #test_model(load_model("model_unet_color_896_14_8"), grayscale=False)
 #test_model(load_model("model_kar_poland_unet_color_896_14_8"), grayscale=False)
-#test_model(load_model("model_kar_poland_unet_color_1984_31_8"), grayscale=False)
+test_model(load_model("model_poland_unet_color_1984_31_8"), grayscale=False)
