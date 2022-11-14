@@ -1,37 +1,35 @@
 import os
-from random import Random
+import random
 
-from PIL import Image, ImageOps
 import numpy as np
-import tensorflow as tf
-from keras.applications.mobilenet import preprocess_input
-from keras.preprocessing.image import ImageDataGenerator
-
+from PIL import Image
 import constants
-
-image_path = constants.data_path + "/images_png"
-mask_path = constants.data_path + "/masks_png"
-
-prepped_image_path = "ChinaPrepped/Rural/images_png"
-prepped_mask_path = "ChinaPrepped/Rural/masks_png"
-
-samples = 8
-
-image_names = os.listdir(image_path + "/img")[0:samples]
-images = []
-masks = []
-
-for image_name in image_names:
-    image = np.asarray(ImageOps.grayscale(Image.open(image_path + "/img/" + image_name)))[0:508, 0:508]
-    mask = np.asarray(Image.open(mask_path + "/img/" + image_name))[0:508, 0:508]
-    images.append(image)
-    masks.append(mask)
+from image_load import to_one_hot
 
 
-for index, image in enumerate(images):
-    img = Image.fromarray(image)
-    img.save(prepped_image_path + "/img/" + image_names[index])
+def prep_images_and_masks(path=constants.training_data_path):
+    image_path = path + "/images_png"
+    mask_path = path + "/masks_png"
 
-for index, mask in enumerate(masks):
-    img = Image.fromarray(mask)
-    img.save(prepped_mask_path + "/img/" + image_names[index])
+    prepped_image_path = path + "/images_npy"
+    prepped_mask_path = path + "/masks_npy"
+
+    if "images_npy" not in os.listdir(path):
+        os.mkdir(prepped_image_path)
+        os.mkdir(prepped_mask_path)
+
+    image_names = os.listdir(image_path)
+
+    for image_name in image_names:
+        print(image_name)
+        image = np.asarray(Image.open(image_path + "/" + image_name))
+        mask_name = image_name[0:len(image_name) - 3] + "png"
+        mask = np.asarray(Image.open(mask_path + "/" + mask_name))
+        mask_one_hot = to_one_hot(np.array([mask]))[0]
+        np.save(prepped_image_path + "/" + image_name[0:len(mask_name) - 4], image)
+        np.save(prepped_mask_path + "/" + mask_name[0:len(mask_name) - 4], mask_one_hot)
+
+
+#prep_images_and_masks(path=constants.training_data_path)
+prep_images_and_masks(path=constants.test_data_path)
+#prep_images_and_masks(path=constants.validation_data_path)

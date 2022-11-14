@@ -20,7 +20,7 @@ def conv_layer(x, filters, kernel_size=3, padding='same', kernel_initializer='he
     return x
 
 
-def u_net_gray(num_classes, img_size, metrics=[]):
+def u_net_gray(num_classes, img_size):
     inputs = Input(shape=(img_size, img_size, 1))
 
     # Encoder
@@ -63,11 +63,10 @@ def u_net_gray(num_classes, img_size, metrics=[]):
 
     model = Model(inputs, conv11)
     model.summary()
-    model.compile(optimizer=RMSprop(learning_rate=0.01), loss='mse', metrics=metrics)
     return model
 
 
-def u_net_color(num_classes, img_size, metrics=[]):
+def u_net_color(num_classes, img_size):
     inputs = Input(shape=(img_size, img_size, 3))
 
     # Encoder
@@ -82,16 +81,16 @@ def u_net_color(num_classes, img_size, metrics=[]):
     conv5 = conv_layer(pool4, filters=128)
     pool5 = MaxPooling2D(pool_size=(2, 2))(conv5)
     conv6 = conv_layer(pool5, filters=256)
-    pool6 = MaxPooling2D(pool_size=(2, 2))(conv6)
-    conv7 = conv_layer(pool6, filters=512)
+    #pool6 = MaxPooling2D(pool_size=(2, 2))(conv6)
+    #conv7 = conv_layer(pool6, filters=512)
 
     # Decoder
-    up4 = conv_layer(conv7, filters=256)
+    up4 = conv_layer(conv6, filters=128)
     up4 = UpSampling2D(size=(2, 2))(up4)
-    merge4 = concatenate([conv6, up4], axis=3)
-    up5 = conv_layer(merge4, filters=128)
-    up5 = UpSampling2D(size=(2, 2))(up5)
-    merge5 = concatenate([conv5, up5], axis=3)
+    #merge4 = concatenate([conv6, up4], axis=3)
+    #up5 = conv_layer(merge4, filters=128)
+    #up5 = UpSampling2D(size=(2, 2))(up5)
+    merge5 = concatenate([conv5, up4], axis=3)
     up6 = conv_layer(merge5, filters=64)
     up6 = UpSampling2D(size=(2, 2))(up6)
     merge6 = concatenate([conv4, up6], axis=3)
@@ -110,5 +109,4 @@ def u_net_color(num_classes, img_size, metrics=[]):
 
     model = Model(inputs, conv11)
     model.summary()
-    model.compile(optimizer=RMSprop(learning_rate=0.01), loss='mse', metrics=metrics)
     return model

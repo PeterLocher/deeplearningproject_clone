@@ -6,15 +6,15 @@ import os
 
 import cv2
 
-IMGS_DIR = "./images_png"
-MASKS_DIR = "./masks_png"
-OUTPUT_DIR = "Poland_1024/images_png"
-OUTPUT_DIR_MASK = "Poland_1024/masks_png"
+IMGS_DIR = "China_1024/Val/Rural/images_png"
+MASKS_DIR = "China_1024/Val/Rural/masks_png"
+OUTPUT_DIR = "China_Rural_256/Val/images_png"
+OUTPUT_DIR_MASK = "China_Rural_256/Val/masks_png"
 
-TARGET_SIZE = 1024
+TARGET_SIZE = 256
 
-img_paths = glob.glob(os.path.join(IMGS_DIR, "*.tif"))
-mask_paths = glob.glob(os.path.join(MASKS_DIR, "*.tif"))
+img_paths = glob.glob(os.path.join(IMGS_DIR, "*.png"))
+mask_paths = glob.glob(os.path.join(MASKS_DIR, "*.png"))
 
 img_paths.sort()
 mask_paths.sort()
@@ -26,7 +26,6 @@ for i, (img_path, mask_path) in enumerate(zip(img_paths, mask_paths)):
     mask_filename = os.path.splitext(os.path.basename(mask_path))[0]
     img = cv2.imread(img_path)
     mask = cv2.imread(mask_path)
-
     assert img_filename == mask_filename and img.shape[:2] == mask.shape[:2]
 
     k = 0

@@ -1,4 +1,6 @@
 import os
+import random
+
 import numpy as np
 from PIL import Image, ImageOps
 from keras.utils import Sequence
@@ -6,17 +8,17 @@ from keras.utils import Sequence
 import constants
 
 
-def to_one_hot(masks):
+def to_one_hot(masks, classes=7):
     if len(masks.shape) == 4:
         masks = masks[:, :, :, 0]
     samples, w, h = masks.shape
     masks = np.expand_dims(masks, axis=3)
-    masks = np.concatenate((masks, np.zeros((samples, w, h, 7))), axis=3)
+    masks = np.concatenate((masks, np.zeros((samples, w, h, classes - 1))), axis=3)
     for sample in range(samples):
         for x in range(w):
             for y in range(h):
-                one_hot = np.zeros(8)
-                one_hot[int(masks[sample, x, y, 0])] = 1
+                one_hot = np.zeros(classes)
+                one_hot[int(masks[sample, x, y, 0]) - 1] = 1
                 masks[sample, x, y] = one_hot
     return masks
 
@@ -49,13 +51,14 @@ class ImageMaskGenerator(Sequence):
     batch_size = 8
 
     def __init__(self, data_path=constants.training_data_path, images_folder="/images_png",
-                 masks_folder="/masks_png", grayscale=True) -> None:
+                 masks_folder="/masks_png", grayscale=True, classes=7) -> None:
         super().__init__()
         self.grayscale = grayscale
         self.image_path = data_path + images_folder
         self.mask_path = data_path + masks_folder
         self.image_names = os.listdir(self.image_path)
         self.current_sample = 0
+        self.classes = classes
 
     def set_up_as_sequence(self, training_size=64, batch_size=8):
         self.batch_size = batch_size
@@ -84,8 +87,52 @@ class ImageMaskGenerator(Sequence):
         if self.grayscale:
             images = np.expand_dims(images, axis=3)
         masks = np.asarray(masks)
-        masks = to_one_hot(masks)
+        masks = to_one_hot(masks, classes=self.classes)
         print(images_to_load, images.shape, masks.shape)
+        return images, masks
+
+    def __getitem__(self, index):
+        return self.next_samples(self.batch_size)
+
+    def __len__(self):
+        return self.training_size // self.batch_size
+
+
+class FastImageMaskGenerator(Sequence):
+    img_size = 1024
+    training_size = 64
+    batch_size = 8
+
+    def __init__(self, data_path=constants.training_data_path, images_folder="/images_npy", masks_folder="/masks_npy", shuffle=False) -> None:
+        super().__init__()
+        self.image_path = data_path + images_folder
+        self.mask_path = data_path + masks_folder
+        self.image_names = os.listdir(self.image_path)
+        if shuffle:
+            random.seed(0)
+            random.shuffle(self.image_names)
+        self.current_sample = 0
+
+    def set_up_as_sequence(self, training_size=64, batch_size=8):
+        self.batch_size = batch_size
+        self.training_size = training_size
+
+    def next_samples(self, number_of_samples=8):
+        images, masks = [], []
+        images_to_load = self.image_names[self.current_sample:self.current_sample + number_of_samples]
+        images_found = len(images_to_load)
+        if images_found < number_of_samples:
+            images_to_load = images_to_load + self.image_names[0:number_of_samples - images_found]
+            self.current_sample = number_of_samples - images_found
+        else:
+            self.current_sample += number_of_samples
+        for image_name in images_to_load:
+            image = np.load(self.image_path + "/" + image_name)
+            mask = np.load(self.mask_path + "/" + image_name)
+            images.append(image)
+            masks.append(mask)
+        images = np.asarray(images)
+        masks = np.asarray(masks)
         return images, masks
 
     def __getitem__(self, index):
