@@ -30,6 +30,6 @@ def prep_images_and_masks(path=constants.training_data_path):
         np.save(prepped_mask_path + "/" + mask_name[0:len(mask_name) - 4], mask_one_hot)
 
 
-#prep_images_and_masks(path=constants.training_data_path)
-prep_images_and_masks(path=constants.test_data_path)
-#prep_images_and_masks(path=constants.validation_data_path)
+prep_images_and_masks(path=constants.training_data_path)
+#prep_images_and_masks(path=constants.test_data_path)
+prep_images_and_masks(path=constants.validation_data_path)

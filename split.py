@@ -6,10 +6,11 @@ import os
 
 import cv2
 
-IMGS_DIR = "China_1024/Val/Rural/images_png"
-MASKS_DIR = "China_1024/Val/Rural/masks_png"
-OUTPUT_DIR = "China_Rural_256/Val/images_png"
-OUTPUT_DIR_MASK = "China_Rural_256/Val/masks_png"
+FOLDER = "Train"
+IMGS_DIR = "China_1024/" + FOLDER + "/Rural/images_png"
+MASKS_DIR = "China_1024/" + FOLDER + "/Rural/masks_png"
+OUTPUT_DIR = "China_Rural_256/" + FOLDER + "/images_png"
+OUTPUT_DIR_MASK = "China_Rural_256/" + FOLDER + "/masks_png"
 
 TARGET_SIZE = 256
 
@@ -35,10 +36,10 @@ for i, (img_path, mask_path) in enumerate(zip(img_paths, mask_paths)):
             mask_tile = mask[y:y + TARGET_SIZE, x:x + TARGET_SIZE]
 
             if img_tile.shape[0] == TARGET_SIZE and img_tile.shape[1] == TARGET_SIZE:
-                out_img_path = os.path.join(OUTPUT_DIR, "{}_{}.jpg".format(img_filename, k))
+                out_img_path = os.path.join(OUTPUT_DIR, "{}_{}.png".format(img_filename, k))
                 cv2.imwrite(out_img_path, img_tile)
 
-                out_mask_path = os.path.join(OUTPUT_DIR_MASK, "{}_{}_m.png".format(mask_filename, k))
+                out_mask_path = os.path.join(OUTPUT_DIR_MASK, "{}_{}.png".format(mask_filename, k))
                 cv2.imwrite(out_mask_path, mask_tile)
 
             k += 1

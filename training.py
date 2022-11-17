@@ -4,7 +4,7 @@ import keras_unet.models as km
 import keras_unet.utils as ku
 import segmentation_models as sm
 from keras import metrics as met
-from keras.optimizers import RMSprop
+from keras.optimizers import RMSprop, Adamax
 
 import constants
 from image_load import ImageMaskGenerator, FastImageMaskGenerator
@@ -36,7 +36,7 @@ def train_pretrained_model(samples_per_epoch, epochs, batch_size, num_classes=7)
 
 def train_km_unet(samples_per_epoch, epochs, batch_size, validate=True, num_classes=7, img_size=1024, model_type=km.custom_unet):
     model = model_type(input_shape=(img_size, img_size, 3), num_classes=num_classes)
-    model.compile(optimizer=RMSprop(learning_rate=0.01), loss='mse', metrics=metrics)
+    model.compile(optimizer=Adamax(learning_rate=0.001), loss='mse', metrics=metrics)
     history = train_g(model, samples_per_epoch, epochs, batch_size, file_prefix="model_kar_unet",
                       validate=validate, num_classes=num_classes, img_size=img_size)
     ku.plot_segm_history(history, metrics=["accuracy"], losses=["loss", "val_loss"])
@@ -44,7 +44,7 @@ def train_km_unet(samples_per_epoch, epochs, batch_size, validate=True, num_clas
 
 def train_my_unet(samples_per_epoch, epochs, batch_size, validate=True, num_classes=7, img_size=1024):
     model = u_net_color(num_classes, img_size)
-    model.compile(optimizer=RMSprop(learning_rate=0.01), loss='mse', metrics=metrics)
+    model.compile(optimizer=Adamax(learning_rate=0.001), loss='mse', metrics=metrics)
     history = train_g(model, samples_per_epoch, epochs, batch_size, file_prefix="model_unet", validate=validate, num_classes=num_classes, img_size=img_size)
     ku.plot_segm_history(history, metrics=["accuracy"], losses=["loss", "val_loss"])
 
@@ -62,8 +62,8 @@ def train_g(model, samples_per_epoch, epochs, batch_size, file_prefix="model", v
 
 
 #train_u_net(samples=128, epochs=30, batch_size=8)
-train_my_unet(32, 1000, 8, img_size=256)
-train_km_unet(32, 1000, 8, img_size=256)
+#train_my_unet(32, 650, 8, img_size=256)
+train_km_unet(32, 100, 8, img_size=256)
 #train_km_unet(4, 2, 2)
 #train_pretrained_model(16, 110, 4)
 #train_pretrained_model(16, 200, 4)

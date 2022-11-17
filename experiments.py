@@ -37,7 +37,7 @@ def plot_images(org_imgs, mask_imgs, pred_imgs=None, grayscale=True, figsize=4):
     plt.plot()
 
 
-def try_u_net(model, grayscale=True, samples=5):
+def try_u_net(model, grayscale=False, samples=5):
     gen = FastImageMaskGenerator(data_path=constants.test_data_path, shuffle=True)
     image_test, mask_test = gen.next_samples(samples)
     out = model.predict(image_test)
@@ -65,5 +65,6 @@ def test_model(model):
 print(sm._KERAS_LAYERS)
 
 #model = train_pretrained_model(16, 100, 8)
-try_u_net(load_model("model_poland_unet_color_32000_1000_8"), grayscale=False, samples=7)
+try_u_net(load_model("model_kar_unet_color_3200_100_8"))
+try_u_net(load_model("model_kar_unet_color_20800_650_8"))
 #test_model(load_model("pretrained_unet_color_3200_200_4"), grayscale=False, num_classes=4)
