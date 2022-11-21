@@ -23,6 +23,25 @@ def to_one_hot(masks, classes=7):
     return masks
 
 
+def to_one_hot_single_class(masks, class_id=3):
+    if len(masks.shape) == 4:
+        masks = masks[:, :, :, 0]
+    samples, w, h = masks.shape
+    masks = np.expand_dims(masks, axis=3)
+    masks = np.concatenate((masks, np.zeros((samples, w, h, 1))), axis=3)
+    for sample in range(samples):
+        for x in range(w):
+            for y in range(h):
+                one_hot = np.zeros(2)
+                if int(masks[sample, x, y, 0]) == class_id:
+                    one_hot[1] = 1
+                    #print(str(class_id) + " at " + str(x) + ", " + str(y))
+                else:
+                    one_hot[0] = 1
+                masks[sample, x, y] = one_hot
+    return masks
+
+
 def from_one_hot(masks):
     samples, w, h, channels = masks.shape
     label_masks = np.zeros((samples, w, h))
@@ -42,6 +61,17 @@ def one_hot_to_rgb(masks):
             for y in range(h):
                 index = np.argmax(masks[sample, x, y]) * 30
                 label_masks[sample, x, y] = (index, index, index)
+    return np.uint8(label_masks.astype(int))
+
+
+def one_hot_to_rgb_single_class(masks):
+    samples, w, h, channels = masks.shape
+    label_masks = np.zeros((samples, w, h, 3))
+    for sample in range(samples):
+        for x in range(w):
+            for y in range(h):
+                color = np.argmax(masks[sample, x, y]) * 200
+                label_masks[sample, x, y] = (color, 0, 0)
     return np.uint8(label_masks.astype(int))
 
 
@@ -102,14 +132,16 @@ class FastImageMaskGenerator(Sequence):
     img_size = 1024
     training_size = 64
     batch_size = 8
+    skip = False
+    number_of_skips = 0
 
-    def __init__(self, data_path=constants.training_data_path, images_folder="/images_npy", masks_folder="/masks_npy", shuffle=False) -> None:
+    def __init__(self, data_path=constants.training_data_path, images_folder="images_npy", masks_folder="masks_npy", shuffle=False, seed=0) -> None:
         super().__init__()
-        self.image_path = data_path + images_folder
-        self.mask_path = data_path + masks_folder
+        self.image_path = data_path + "/" + images_folder
+        self.mask_path = data_path + "/" + masks_folder
         self.image_names = os.listdir(self.image_path)
         if shuffle:
-            random.seed(0)
+            random.seed(seed)
             random.shuffle(self.image_names)
         self.current_sample = 0
 
@@ -133,6 +165,12 @@ class FastImageMaskGenerator(Sequence):
             masks.append(mask)
         images = np.asarray(images)
         masks = np.asarray(masks)
+        road_pixels = masks[:, :, :, 1].sum()
+        #print(road_pixels)
+        if road_pixels < 4000 and self.skip:
+            self.number_of_skips += 1
+            print("skipped " + str(self.number_of_skips) + " batch(es) without roads")
+            return self.next_samples(number_of_samples=number_of_samples)
         return images, masks
 
     def __getitem__(self, index):

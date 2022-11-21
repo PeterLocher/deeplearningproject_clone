@@ -4,7 +4,7 @@ import random
 import numpy as np
 from PIL import Image
 import constants
-from image_load import to_one_hot
+from image_load import to_one_hot, to_one_hot_single_class
 
 
 def prep_images_and_masks(path=constants.training_data_path):
@@ -30,6 +30,26 @@ def prep_images_and_masks(path=constants.training_data_path):
         np.save(prepped_mask_path + "/" + mask_name[0:len(mask_name) - 4], mask_one_hot)
 
 
-prep_images_and_masks(path=constants.training_data_path)
+def prep_masks_single_class(path=constants.training_data_path, class_id=3):
+    mask_path = path + "/masks_png"
+    prepped_mask_path = path + "/masks_npy_" + str(class_id)
+
+    if "masks_npy_" + str(class_id) not in os.listdir(path):
+        os.mkdir(prepped_mask_path)
+
+    mask_names = os.listdir(mask_path)
+    i = 0
+
+    for mask_name in mask_names:
+        i += 1
+        print(str(i) + "/" + str(len(mask_names)))
+        mask = np.asarray(Image.open(mask_path + "/" + mask_name))
+        mask_one_hot = to_one_hot_single_class(np.array([mask]))[0]
+        np.save(prepped_mask_path + "/" + mask_name[0:len(mask_name) - 4], mask_one_hot)
+
+
+#prep_images_and_masks(path=constants.training_data_path)
 #prep_images_and_masks(path=constants.test_data_path)
-prep_images_and_masks(path=constants.validation_data_path)
+#prep_images_and_masks(path=constants.validation_data_path)
+
+prep_masks_single_class(path=constants.training_data_path)
