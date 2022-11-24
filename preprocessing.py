@@ -52,4 +52,5 @@ def prep_masks_single_class(path=constants.training_data_path, class_id=3):
 #prep_images_and_masks(path=constants.test_data_path)
 #prep_images_and_masks(path=constants.validation_data_path)
 
-prep_masks_single_class(path=constants.training_data_path)
+#prep_masks_single_class(path=constants.training_data_path)
+#prep_masks_single_class(path=constants.validation_data_path)

@@ -7,10 +7,10 @@ import os
 import cv2
 
 FOLDER = "Train"
-IMGS_DIR = "China_1024/" + FOLDER + "/Rural/images_png"
-MASKS_DIR = "China_1024/" + FOLDER + "/Rural/masks_png"
-OUTPUT_DIR = "China_Rural_256/" + FOLDER + "/images_png"
-OUTPUT_DIR_MASK = "China_Rural_256/" + FOLDER + "/masks_png"
+IMGS_DIR = "China_Urban_1024/" + FOLDER + "/images_png"
+MASKS_DIR = "China_Urban_1024/" + FOLDER + "/masks_png"
+OUTPUT_DIR = "China_Urban_256/" + FOLDER + "/images_png"
+OUTPUT_DIR_MASK = "China_Urban_256/" + FOLDER + "/masks_png"
 
 TARGET_SIZE = 256
 

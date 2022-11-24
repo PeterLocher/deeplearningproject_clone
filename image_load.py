@@ -79,16 +79,22 @@ class ImageMaskGenerator(Sequence):
     img_size = 1024
     training_size = 64
     batch_size = 8
+    skip = False
+    number_of_skips = 0
 
     def __init__(self, data_path=constants.training_data_path, images_folder="/images_png",
-                 masks_folder="/masks_png", grayscale=True, classes=7) -> None:
+                 masks_folder="/masks_png", grayscale=False, classes=7, single_class=-1, shuffle=False, seed=0) -> None:
         super().__init__()
         self.grayscale = grayscale
         self.image_path = data_path + images_folder
         self.mask_path = data_path + masks_folder
         self.image_names = os.listdir(self.image_path)
+        if shuffle:
+            random.seed(seed)
+            random.shuffle(self.image_names)
         self.current_sample = 0
         self.classes = classes
+        self.single_class = single_class
 
     def set_up_as_sequence(self, training_size=64, batch_size=8):
         self.batch_size = batch_size
@@ -117,8 +123,15 @@ class ImageMaskGenerator(Sequence):
         if self.grayscale:
             images = np.expand_dims(images, axis=3)
         masks = np.asarray(masks)
-        masks = to_one_hot(masks, classes=self.classes)
-        print(images_to_load, images.shape, masks.shape)
+        if self.single_class == -1:
+            masks = to_one_hot(masks, classes=self.classes)
+        else:
+            masks = to_one_hot_single_class(masks, class_id=self.single_class)
+        road_pixels = masks[:, :, :, 1].sum()
+        if road_pixels < 64 * self.img_size and self.skip:
+            self.number_of_skips += 1
+            print("skipped " + str(self.number_of_skips) + " batch(es) without roads")
+            return self.next_samples(number_of_samples=number_of_samples)
         return images, masks
 
     def __getitem__(self, index):
@@ -166,8 +179,7 @@ class FastImageMaskGenerator(Sequence):
         images = np.asarray(images)
         masks = np.asarray(masks)
         road_pixels = masks[:, :, :, 1].sum()
-        #print(road_pixels)
-        if road_pixels < 4000 and self.skip:
+        if road_pixels < 16 * 4000 and self.skip:
             self.number_of_skips += 1
             print("skipped " + str(self.number_of_skips) + " batch(es) without roads")
             return self.next_samples(number_of_samples=number_of_samples)
