@@ -29,7 +29,7 @@ def train_km_unet(samples_per_epoch, epochs, batch_size, validate=True, num_clas
     model = model_type(input_shape=(img_size, img_size, 3), num_classes=num_classes)
     model.compile(optimizer=Adamax(learning_rate=learning_rate), loss='mse', metrics=metrics)
     history = train_g(model, samples_per_epoch, epochs, batch_size, file_prefix="kar_mse",
-                      validate=validate, num_classes=num_classes, single_class=single_class)
+                      validate=validate, single_class=single_class)
     ku.plot_segm_history(history, metrics=["iou", "val_iou"], losses=["loss", "val_loss"])
     return model
 
@@ -37,35 +37,32 @@ def train_km_unet(samples_per_epoch, epochs, batch_size, validate=True, num_clas
 def train_my_unet(samples_per_epoch, epochs, batch_size, validate=True, num_classes=2, img_size=1024, learning_rate=0.001, single_class=-1):
     model = u_net_color(num_classes, img_size)
     model.compile(optimizer=Adamax(learning_rate=learning_rate), loss='mse', metrics=metrics)
-    history = train_g(model, samples_per_epoch, epochs, batch_size, file_prefix="my_unet_mse", validate=validate, num_classes=num_classes, single_class=single_class)
+    history = train_g(model, samples_per_epoch, epochs, batch_size, file_prefix="my_unet_mse", validate=validate,
+                      single_class=single_class)
     ku.plot_segm_history(history, metrics=["iou", "val_iou"], losses=["loss", "val_loss"])
 
 
-def train_g(model, samples_per_epoch, epochs, batch_size, file_prefix="model", validate=True, num_classes=7, single_class=-1):
+def train_g(model, samples_per_epoch, epochs, batch_size, file_prefix="model", validate=True, single_class=-1):
     gen = ImageMaskGenerator(shuffle=True, single_class=single_class)
     gen.set_up_as_sequence(samples_per_epoch, batch_size)
-    gen.skip = False
+    gen.skip = True
     gen_val = None
     if validate:
         gen_val = ImageMaskGenerator(data_path=constants.validation_data_path, shuffle=True, single_class=single_class)
         gen_val.set_up_as_sequence(samples_per_epoch, batch_size)
     history = model.fit(gen, epochs=epochs, shuffle=True, verbose=1, validation_data=gen_val)
-    model.save(file_prefix + "_poland_road_" + str(samples_per_epoch * epochs) + "_" + str(epochs) + "_" + str(batch_size))
+    model.save(file_prefix + "_china_water_" + str(samples_per_epoch * epochs) + "_" + str(epochs) + "_" + str(batch_size))
     return history
 
 
-train_km_unet(32, 50, 8, img_size=256, single_class=4)
+# Small image size poland roads, china water
+# train_km_unet(32, 50, 8, img_size=256, single_class=4)
 # train_km_unet(32, 75, 8, img_size=256, single_class=4)
 # train_km_unet(32, 100, 8, img_size=256, single_class=4)
 # train_km_unet(32, 125, 8, img_size=256, single_class=4)
 # train_km_unet(32, 150, 8, img_size=256, single_class=4)
 
-# train_km_unet(32, 150, 8, img_size=256, learning_rate=0.0003, single_class=3)
-# train_km_unet(32, 200, 8, img_size=256, learning_rate=0.0003, single_class=3)
-# train_km_unet(32, 250, 8, img_size=256, learning_rate=0.0003, single_class=3)
-# train_km_unet(32, 300, 8, img_size=256, learning_rate=0.0003, single_class=3)
-# train_km_unet(32, 400, 8, img_size=256, learning_rate=0.0003, single_class=3)
+train_km_unet(32, 200, 8, img_size=256, single_class=4)
 
-# train_km_unet(32, 16, 8, img_size=1024, single_class=4)
-# train_km_unet(32, 24, 8, img_size=1024, single_class=4)
-# train_km_unet(32, 32, 8, img_size=1024, single_class=4)
+#China urban road detection
+#train_km_unet(32, 64, 8, img_size=1024, single_class=3, learning_rate=0.0004)

@@ -127,61 +127,11 @@ class ImageMaskGenerator(Sequence):
             masks = to_one_hot(masks, classes=self.classes)
         else:
             masks = to_one_hot_single_class(masks, class_id=self.single_class)
-        road_pixels = masks[:, :, :, 1].sum()
-        if road_pixels < 64 * self.img_size and self.skip:
+        class_pixels = masks[:, :, :, 1].sum()
+        if class_pixels < 2 * self.img_size and self.skip:
             self.number_of_skips += 1
-            print("skipped " + str(self.number_of_skips) + " batch(es) without roads")
-            return self.next_samples(number_of_samples=number_of_samples)
-        return images, masks
-
-    def __getitem__(self, index):
-        return self.next_samples(self.batch_size)
-
-    def __len__(self):
-        return self.training_size // self.batch_size
-
-
-class FastImageMaskGenerator(Sequence):
-    img_size = 1024
-    training_size = 64
-    batch_size = 8
-    skip = False
-    number_of_skips = 0
-
-    def __init__(self, data_path=constants.training_data_path, images_folder="images_npy", masks_folder="masks_npy", shuffle=False, seed=0) -> None:
-        super().__init__()
-        self.image_path = data_path + "/" + images_folder
-        self.mask_path = data_path + "/" + masks_folder
-        self.image_names = os.listdir(self.image_path)
-        if shuffle:
-            random.seed(seed)
-            random.shuffle(self.image_names)
-        self.current_sample = 0
-
-    def set_up_as_sequence(self, training_size=64, batch_size=8):
-        self.batch_size = batch_size
-        self.training_size = training_size
-
-    def next_samples(self, number_of_samples=8):
-        images, masks = [], []
-        images_to_load = self.image_names[self.current_sample:self.current_sample + number_of_samples]
-        images_found = len(images_to_load)
-        if images_found < number_of_samples:
-            images_to_load = images_to_load + self.image_names[0:number_of_samples - images_found]
-            self.current_sample = number_of_samples - images_found
-        else:
-            self.current_sample += number_of_samples
-        for image_name in images_to_load:
-            image = np.load(self.image_path + "/" + image_name)
-            mask = np.load(self.mask_path + "/" + image_name)
-            images.append(image)
-            masks.append(mask)
-        images = np.asarray(images)
-        masks = np.asarray(masks)
-        road_pixels = masks[:, :, :, 1].sum()
-        if road_pixels < 16 * 4000 and self.skip:
-            self.number_of_skips += 1
-            print("skipped " + str(self.number_of_skips) + " batch(es) without roads")
+            print(class_pixels)
+            print(f"skipped {self.number_of_skips} batch(es) without class {self.single_class}")
             return self.next_samples(number_of_samples=number_of_samples)
         return images, masks
 
