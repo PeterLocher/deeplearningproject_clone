@@ -24,6 +24,8 @@ def to_one_hot(masks, classes=7):
 
 
 def to_one_hot_single_class(masks, class_id=3):
+    if not isinstance(class_id, list):
+        class_id = [class_id]
     if len(masks.shape) == 4:
         masks = masks[:, :, :, 0]
     samples, w, h = masks.shape
@@ -33,11 +35,34 @@ def to_one_hot_single_class(masks, class_id=3):
         for x in range(w):
             for y in range(h):
                 one_hot = np.zeros(2)
-                if int(masks[sample, x, y, 0]) == class_id:
+                c = int(masks[sample, x, y, 0])
+                if c in class_id:
                     one_hot[1] = 1
-                    #print(str(class_id) + " at " + str(x) + ", " + str(y))
-                else:
+                elif c != 1:
                     one_hot[0] = 1
+                masks[sample, x, y] = one_hot
+    return masks
+
+
+def to_one_hot_combo_classes(masks, class_groupings=None):
+    if class_groupings is None:
+        class_groupings = [[1], [2, 3], [4, 5, 6, 7]]
+    if len(masks.shape) == 4:
+        masks = masks[:, :, :, 0]
+    samples, w, h = masks.shape
+    masks = np.expand_dims(masks, axis=3)
+    masks = np.concatenate((masks, np.zeros((samples, w, h, 1))), axis=3)
+    for sample in range(samples):
+        for x in range(w):
+            for y in range(h):
+                one_hot = np.zeros(len(class_groupings))
+                c = int(masks[sample, x, y, 0])
+                label = 0
+                for group in class_groupings:
+                    if c in group:
+                        break
+                    label += 1
+                one_hot[label] = 1
                 masks[sample, x, y] = one_hot
     return masks
 
@@ -76,7 +101,6 @@ def one_hot_to_rgb_single_class(masks):
 
 
 class ImageMaskGenerator(Sequence):
-    img_size = 1024
     training_size = 64
     batch_size = 8
     skip = False
@@ -128,7 +152,7 @@ class ImageMaskGenerator(Sequence):
         else:
             masks = to_one_hot_single_class(masks, class_id=self.single_class)
         class_pixels = masks[:, :, :, 1].sum()
-        if class_pixels < 2 * self.img_size and self.skip:
+        if class_pixels < 4000 and self.skip:
             self.number_of_skips += 1
             print(class_pixels)
             print(f"skipped {self.number_of_skips} batch(es) without class {self.single_class}")

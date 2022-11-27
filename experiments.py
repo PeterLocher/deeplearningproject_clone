@@ -60,10 +60,10 @@ def test_to_one_hot():
     plot_images([np.asarray(Image.open("China_Rural_256/Val/images_png/2550_5.png"))], mask, grayscale=False)
 
 
-def show_vanishing_point_of_road(folder="models_256_road_china/learning_rate_0_0003", c=3):
+def show_vanishing_point_of_road(folder="models_256_china_road/learning_rate_0_0003", c=3, seed=0):
     for file_name in os.listdir(folder):
         try_u_net(load_model(folder + "/" + file_name), one_hot_to_rgb_function=one_hot_to_rgb_single_class,
-                  single_class=c, seed=3)
+                  single_class=c, seed=seed)
 
 
 def show_vanishing_point_of_road_Jaccard(training_function):
@@ -140,18 +140,14 @@ def visualize_intermediate_layer(model):
     plt.show()
 
 
-try_u_net(load_model("kar_mse_china_water_3200_100_8"), single_class=4, seed=2)
-try_u_net(load_model("kar_mse_china_water_3200_100_8"), single_class=4, seed=3)
-try_u_net(load_model("kar_mse_china_water_3200_100_8"), single_class=4, seed=4)
-#show_feature_maps(load_model("models_256_road_china/learning_rate_0_001/kar_mse_skip_road_1600_50_8"), image_number=2)
-#show_feature_maps(load_model("models_256_road_china/learning_rate_0_001/kar_mse_skip_road_3200_100_8"), image_number=2)
-#show_feature_maps(load_model("models_256_road_china/learning_rate_0_001/kar_mse_skip_road_4800_150_8"), image_number=2)
+#try_u_net(load_model("kar_mse_void_china_2400_75_8"), single_class=1, seed=1)
 #visualize_intermediate_layer(load_model("kar_mse_skip_road_3200_100_8"))
-#show_vanishing_point_of_road()
-#show_vanishing_point_of_road_Jaccard(train_pretrained_model)
-#try_u_net(load_model("kar_mse_skip_road_3200_100_8"), one_hot_to_rgb_function=one_hot_to_rgb_single_class, mask_folder="masks_npy_3")
-#model = train_pretrained_model(16, 100, 8)
-#try_u_net(load_model("all_class_models/model_kar_unet_color_3200_100_8"))
-#try_u_net(load_model("all_class_models/model_kar_unet_color_9600_300_8"))
+#show_vanishing_point_of_road("models_256_poland_building", c=1, seed=9)
+#show_vanishing_point_of_road("models_256_poland_building", c=1, seed=10)
+#try_u_net(load_model("models_256_poland_building/kar_mse_building_poland_3200_100_8"), single_class=1, seed=9)
+try_u_net(load_model("kar_mse_road_skip_china_3200_100_8"), single_class=3, seed=0)
+try_u_net(load_model("kar_mse_road_skip_china_3200_100_8"), single_class=3, seed=1)
+try_u_net(load_model("kar_mse_road_skip_china_3200_100_8"), single_class=3, seed=2)
+#show_feature_maps(load_model("models_256_china_road/learning_rate_0_001/kar_mse_skip_road_1600_50_8"), image_number=2)
 #test_model(load_model("pretrained_unet_color_3200_200_4"), grayscale=False, num_classes=4)
 
