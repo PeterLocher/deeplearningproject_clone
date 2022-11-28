@@ -60,10 +60,35 @@ def test_to_one_hot():
     plot_images([np.asarray(Image.open("China_Rural_256/Val/images_png/2550_5.png"))], mask, grayscale=False)
 
 
-def show_vanishing_point_of_road(folder="models_256_china_road/learning_rate_0_0003", c=3, seed=0):
-    for file_name in os.listdir(folder):
-        try_u_net(load_model(folder + "/" + file_name), one_hot_to_rgb_function=one_hot_to_rgb_single_class,
-                  single_class=c, seed=seed)
+def show_vanishing_point_of_road(folder="models_256_china_road/learning_rate_0_0003", samples=5, c=3, seed=0, figsize=4):
+    model_files = os.listdir(folder)
+    n_images = samples
+    cols = len(model_files) + 2
+    fig, axes = plt.subplots(n_images, cols, figsize=(cols * figsize, n_images * figsize), squeeze=False)
+    axes[0, 0].set_title("original", fontsize=15)
+    axes[0, 1].set_title("ground truth", fontsize=15)
+    for i, model_file in enumerate(model_files):
+        axes[0, 2 + i].set_title(model_file[len(model_file) - 11:], fontsize=15)
+    gen = ImageMaskGenerator(data_path=constants.test_data_path, single_class=c, shuffle=True, seed=seed)
+    image_test, mask_test = gen.next_samples(samples)
+    mask_images = one_hot_to_rgb_single_class(mask_test)
+    for i in range(0, n_images):
+        img = Image.fromarray(image_test[i], mode="RGB")
+        axes[i, 0].imshow(img, interpolation='nearest')
+        axes[i, 0].set_axis_off()
+        img_mask = Image.fromarray(mask_images[i], mode='RGB')
+        axes[i, 1].imshow(img_mask)
+        axes[i, 1].set_axis_off()
+    for col, file_name in enumerate(model_files):
+        print(file_name)
+        model = load_model(folder + "/" + file_name)
+        out = model.predict(image_test)
+        pred_images = one_hot_to_rgb_single_class(out)
+        for i in range(0, n_images):
+            axes[i, 2 + col].set_axis_off()
+            img_pred = Image.fromarray(pred_images[i], mode='RGB')
+            axes[i, 2 + col].imshow(img_pred)
+    plt.show()
 
 
 def show_vanishing_point_of_road_Jaccard(training_function):
@@ -145,9 +170,7 @@ def visualize_intermediate_layer(model):
 #show_vanishing_point_of_road("models_256_poland_building", c=1, seed=9)
 #show_vanishing_point_of_road("models_256_poland_building", c=1, seed=10)
 #try_u_net(load_model("models_256_poland_building/kar_mse_building_poland_3200_100_8"), single_class=1, seed=9)
-try_u_net(load_model("kar_mse_road_skip_china_3200_100_8"), single_class=3, seed=0)
-try_u_net(load_model("kar_mse_road_skip_china_3200_100_8"), single_class=3, seed=1)
-try_u_net(load_model("kar_mse_road_skip_china_3200_100_8"), single_class=3, seed=2)
+show_vanishing_point_of_road("models_256_china_woodland", c=6, seed=1)
 #show_feature_maps(load_model("models_256_china_road/learning_rate_0_001/kar_mse_skip_road_1600_50_8"), image_number=2)
 #test_model(load_model("pretrained_unet_color_3200_200_4"), grayscale=False, num_classes=4)
 

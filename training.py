@@ -7,22 +7,13 @@ from keras.optimizers import Adamax
 
 import constants
 from image_load import ImageMaskGenerator
-from u_net import u_net_color, u_net_gray
+from u_net import simple_u_net, classic_u_net
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
 metrics = [met.Accuracy(name="accuracy"),
            met.metrics.MeanIoU(name="iou", num_classes=7)]
-
-
-def train_u_net(samples, epochs, batch_size):
-    gen = ImageMaskGenerator()
-    model = u_net_gray(8, 1024)
-    image_data, mask_data = gen.next_samples(samples)
-    print("Samples generated")
-    model.fit(image_data, mask_data, epochs=epochs, batch_size=batch_size, shuffle=True, verbose=1)
-    model.save("model_unet_" + str(samples) + "_" + str(epochs) + "_" + str(batch_size))
 
 
 def train_km_unet(samples_per_epoch, epochs, batch_size, validate=True, num_classes=2, img_size=1024, model_type=km.custom_unet, learning_rate=0.001, single_class=-1, prefix=""):
@@ -34,10 +25,10 @@ def train_km_unet(samples_per_epoch, epochs, batch_size, validate=True, num_clas
     return model
 
 
-def train_my_unet(samples_per_epoch, epochs, batch_size, validate=True, num_classes=2, img_size=1024, learning_rate=0.001, single_class=-1):
-    model = u_net_color(num_classes, img_size)
+def train_my_unet(samples_per_epoch, epochs, batch_size, validate=True, num_classes=2, img_size=1024, learning_rate=0.001, single_class=-1, prefix=""):
+    model = simple_u_net(num_classes, img_size)
     model.compile(optimizer=Adamax(learning_rate=learning_rate), loss='mse', metrics=metrics)
-    history = train_g(model, samples_per_epoch, epochs, batch_size, file_prefix="my_unet_mse", validate=validate,
+    history = train_g(model, samples_per_epoch, epochs, batch_size, file_prefix="my_unet_mse_" + prefix, validate=validate,
                       single_class=single_class)
     ku.plot_segm_history(history, metrics=["iou", "val_iou"], losses=["loss", "val_loss"])
 
@@ -55,21 +46,23 @@ def train_g(model, samples_per_epoch, epochs, batch_size, file_prefix="model", v
     return history
 
 
-# China roads
-train_km_unet(32, 75, 8, img_size=256, single_class=3, prefix="road")
-train_km_unet(32, 100, 8, img_size=256, single_class=3, prefix="road")
-train_km_unet(32, 125, 8, img_size=256, single_class=3, prefix="road")
-train_km_unet(32, 150, 8, img_size=256, single_class=3, prefix="road")
-train_km_unet(32, 175, 8, img_size=256, single_class=3, prefix="road")
-train_km_unet(32, 200, 8, img_size=256, single_class=3, prefix="road")
+train_km_unet(32, 75, 8, img_size=256, single_class=[6, 7], prefix="growth")
+train_km_unet(32, 100, 8, img_size=256, single_class=[6, 7], prefix="growth")
+train_km_unet(32, 125, 8, img_size=256, single_class=[6, 7], prefix="growth")
+train_km_unet(32, 150, 8, img_size=256, single_class=[6, 7], prefix="growth")
+train_km_unet(32, 175, 8, img_size=256, single_class=[6, 7], prefix="growth")
 
 
-train_km_unet(32, 75, 8, img_size=256, single_class=[2, 3], prefix="road")
-train_km_unet(32, 100, 8, img_size=256, single_class=[2, 3], prefix="road")
-train_km_unet(32, 125, 8, img_size=256, single_class=[2, 3], prefix="road")
-train_km_unet(32, 150, 8, img_size=256, single_class=[2, 3], prefix="road")
-train_km_unet(32, 175, 8, img_size=256, single_class=[2, 3], prefix="road")
-train_km_unet(32, 200, 8, img_size=256, single_class=[2, 3], prefix="road")
+train_km_unet(32, 250, 8, img_size=256, single_class=3, prefix="road")
+train_km_unet(32, 300, 8, img_size=256, single_class=3, prefix="road")
+train_km_unet(32, 350, 8, img_size=256, single_class=3, prefix="road")
+
+train_my_unet(32, 75, 8, img_size=256, single_class=3, prefix="road")
+train_my_unet(32, 100, 8, img_size=256, single_class=3, prefix="road")
+train_my_unet(32, 125, 8, img_size=256, single_class=3, prefix="road")
+train_my_unet(32, 150, 8, img_size=256, single_class=3, prefix="road")
+train_my_unet(32, 200, 8, img_size=256, single_class=3, prefix="road")
+train_my_unet(32, 300, 8, img_size=256, single_class=3, prefix="road")
 
 #China urban road detection
 #train_km_unet(32, 64, 8, img_size=1024, single_class=3, learning_rate=0.0004)
