@@ -8,7 +8,7 @@ from keras.utils import Sequence
 import constants
 
 
-def to_one_hot(masks, classes=7):
+def to_one_hot(masks, classes=6):
     if len(masks.shape) == 4:
         masks = masks[:, :, :, 0]
     samples, w, h = masks.shape
@@ -18,7 +18,9 @@ def to_one_hot(masks, classes=7):
         for x in range(w):
             for y in range(h):
                 one_hot = np.zeros(classes)
-                one_hot[int(masks[sample, x, y, 0]) - 1] = 1
+                label = int(masks[sample, x, y, 0]) - 2
+                if label != -1:
+                    one_hot[label] = 1
                 masks[sample, x, y] = one_hot
     return masks
 
@@ -107,7 +109,7 @@ class ImageMaskGenerator(Sequence):
     number_of_skips = 0
 
     def __init__(self, data_path=constants.training_data_path, images_folder="/images_png",
-                 masks_folder="/masks_png", grayscale=False, classes=7, single_class=-1, shuffle=False, seed=0) -> None:
+                 masks_folder="/masks_png", grayscale=False, classes=6, single_class=-1, shuffle=False, seed=0) -> None:
         super().__init__()
         self.grayscale = grayscale
         self.image_path = data_path + images_folder

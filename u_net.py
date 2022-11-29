@@ -93,11 +93,11 @@ def classic_u_net(num_classes, img_size):
     up7 = UpSampling2D(size=(2, 2))(up7)
     merge7 = concatenate([conv3, up7], axis=3)
     up8 = conv_layer(merge7, filters=16)
-    up8 = UpSampling2D(size=(2, 2))(up8)
+    up8 = conv_layer(up8, filters=16)
     up8 = UpSampling2D(size=(2, 2))(up8)
     merge8 = concatenate([conv2, up8], axis=3)
     up9 = conv_layer(merge8, filters=8)
-    up9 = UpSampling2D(size=(2, 2))(up9)
+    up9 = conv_layer(up9, filters=8)
     up9 = UpSampling2D(size=(2, 2))(up9)
     merge9 = concatenate([conv1, up9], axis=3)
 

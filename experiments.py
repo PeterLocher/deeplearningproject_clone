@@ -47,11 +47,11 @@ def try_u_net(model, grayscale=False, samples=5, one_hot_to_rgb_function=one_hot
     plot_images(org_imgs=image_test, mask_imgs=mask_images, pred_imgs=pred_images, grayscale=grayscale)
 
 
-def test_model(model):
+def test_model(model, single_class=-1):
     print(model.metrics_names)
-    gen = ImageMaskGenerator(data_path=constants.validation_data_path, shuffle=True)
+    gen = ImageMaskGenerator(data_path=constants.validation_data_path, shuffle=True, single_class=single_class)
     loss = model.evaluate(gen, verbose=False)
-    print('Test loss: ', loss)
+    print(loss)
 
 
 def test_to_one_hot():
@@ -65,10 +65,10 @@ def show_vanishing_point_of_road(folder="models_256_china_road/learning_rate_0_0
     n_images = samples
     cols = len(model_files) + 2
     fig, axes = plt.subplots(n_images, cols, figsize=(cols * figsize, n_images * figsize), squeeze=False)
-    axes[0, 0].set_title("original", fontsize=15)
-    axes[0, 1].set_title("ground truth", fontsize=15)
+    axes[0, 0].set_title("original", fontsize=30)
+    axes[0, 1].set_title("ground truth", fontsize=30)
     for i, model_file in enumerate(model_files):
-        axes[0, 2 + i].set_title(model_file[len(model_file) - 11:], fontsize=15)
+        axes[0, 2 + i].set_title(model_file[len(model_file) - 5:len(model_file) - 2], fontsize=30)
     gen = ImageMaskGenerator(data_path=constants.test_data_path, single_class=c, shuffle=True, seed=seed)
     image_test, mask_test = gen.next_samples(samples)
     mask_images = one_hot_to_rgb_single_class(mask_test)
@@ -167,10 +167,13 @@ def visualize_intermediate_layer(model):
 
 #try_u_net(load_model("kar_mse_void_china_2400_75_8"), single_class=1, seed=1)
 #visualize_intermediate_layer(load_model("kar_mse_skip_road_3200_100_8"))
-#show_vanishing_point_of_road("models_256_poland_building", c=1, seed=9)
-#show_vanishing_point_of_road("models_256_poland_building", c=1, seed=10)
+#256 building seeds poland: 9, 10
+#256 building seeds china: 2, 7, 9
 #try_u_net(load_model("models_256_poland_building/kar_mse_building_poland_3200_100_8"), single_class=1, seed=9)
-show_vanishing_point_of_road("models_256_china_woodland", c=6, seed=1)
+seed = 9
+show_vanishing_point_of_road("models_256_china_road_v2/kar", c=3, seed=2)
 #show_feature_maps(load_model("models_256_china_road/learning_rate_0_001/kar_mse_skip_road_1600_50_8"), image_number=2)
-#test_model(load_model("pretrained_unet_color_3200_200_4"), grayscale=False, num_classes=4)
+#test_model(load_model("models_256_china_artificial_v2/conv1/my_unet_mse_artificial_skip_china_6400_200_8"), single_class=3)
+#test_model(load_model("models_256_china_artificial_v2/conv2/my_unet_mse_2conv_artificial_skip_china_6400_200_8"), single_class=3)
+#test_model(load_model("models_256_china_artificial_v2/kar/kar_mse_artificial_skip_china_5600_175_8"), single_class=3)
 
