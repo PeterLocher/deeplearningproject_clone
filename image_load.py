@@ -80,14 +80,53 @@ def from_one_hot(masks):
     return np.uint8(label_masks.astype(int))
 
 
+index_to_color_map = {
+    1: (255, 255, 255),
+    2: (242, 6, 0),
+    3: (255, 251, 9),
+    4: (0, 3, 245),
+    5: (158, 127, 185),
+    6: (6, 251, 10),
+    7: (255, 195, 121)
+}
+
+
 def one_hot_to_rgb(masks):
     samples, w, h, channels = masks.shape
     label_masks = np.zeros((samples, w, h, 3))
     for sample in range(samples):
         for x in range(w):
             for y in range(h):
-                index = np.argmax(masks[sample, x, y]) * 30
-                label_masks[sample, x, y] = (index, index, index)
+                one_hot = masks[sample, x, y]
+                index = 1
+                if one_hot.sum() > 0.01:
+                    index = np.argmax(one_hot) + 2
+                label_masks[sample, x, y] = index_to_color_map[index]
+    return np.uint8(label_masks.astype(int))
+
+
+index_to_color_map_poland = {
+    6: (255, 195, 121),
+    2: (6, 251, 10),
+    4: (0, 3, 245),
+    3: (255, 251, 9),
+    1: (255, 255, 255),
+    5: (255, 255, 255),
+    7: (255, 255, 255)
+}
+
+
+def one_hot_to_rgb_poland(masks):
+    samples, w, h, channels = masks.shape
+    label_masks = np.zeros((samples, w, h, 3))
+    for sample in range(samples):
+        for x in range(w):
+            for y in range(h):
+                one_hot = masks[sample, x, y]
+                index = 1
+                if one_hot.sum() > 0.01:
+                    index = np.argmax(one_hot) + 2
+                label_masks[sample, x, y] = index_to_color_map_poland[index]
     return np.uint8(label_masks.astype(int))
 
 

@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import constants
-from image_load import one_hot_to_rgb, one_hot_to_rgb_single_class, ImageMaskGenerator
+from image_load import one_hot_to_rgb, one_hot_to_rgb_single_class, ImageMaskGenerator, one_hot_to_rgb_poland
 
 plt.plot()
 
@@ -60,7 +60,7 @@ def test_to_one_hot():
     plot_images([np.asarray(Image.open("China_Rural_256/Val/images_png/2550_5.png"))], mask, grayscale=False)
 
 
-def show_vanishing_point_of_road(folder="models_256_china_road/learning_rate_0_0003", samples=5, c=3, seed=0, figsize=4):
+def show_vanishing_point_of_road(folder="models_256_china_road/learning_rate_0_0003", samples=5, c=3, seed=0, figsize=4, fcolor=one_hot_to_rgb_single_class):
     model_files = os.listdir(folder)
     n_images = samples
     cols = len(model_files) + 2
@@ -68,10 +68,10 @@ def show_vanishing_point_of_road(folder="models_256_china_road/learning_rate_0_0
     axes[0, 0].set_title("original", fontsize=30)
     axes[0, 1].set_title("ground truth", fontsize=30)
     for i, model_file in enumerate(model_files):
-        axes[0, 2 + i].set_title(model_file[len(model_file) - 5:len(model_file) - 2], fontsize=30)
+        axes[0, 2 + i].set_title(model_file[len(model_file) - 8:len(model_file) - 5], fontsize=30)
     gen = ImageMaskGenerator(data_path=constants.test_data_path, single_class=c, shuffle=True, seed=seed)
     image_test, mask_test = gen.next_samples(samples)
-    mask_images = one_hot_to_rgb_single_class(mask_test)
+    mask_images = fcolor(mask_test)
     for i in range(0, n_images):
         img = Image.fromarray(image_test[i], mode="RGB")
         axes[i, 0].imshow(img, interpolation='nearest')
@@ -83,7 +83,7 @@ def show_vanishing_point_of_road(folder="models_256_china_road/learning_rate_0_0
         print(file_name)
         model = load_model(folder + "/" + file_name)
         out = model.predict(image_test)
-        pred_images = one_hot_to_rgb_single_class(out)
+        pred_images = fcolor(out)
         for i in range(0, n_images):
             axes[i, 2 + col].set_axis_off()
             img_pred = Image.fromarray(pred_images[i], mode='RGB')
@@ -165,15 +165,23 @@ def visualize_intermediate_layer(model):
     plt.show()
 
 
-#try_u_net(load_model("kar_mse_void_china_2400_75_8"), single_class=1, seed=1)
-#visualize_intermediate_layer(load_model("kar_mse_skip_road_3200_100_8"))
 #256 building seeds poland: 9, 10
 #256 building seeds china: 2, 7, 9
-#try_u_net(load_model("models_256_poland_building/kar_mse_building_poland_3200_100_8"), single_class=1, seed=9)
-seed = 9
-show_vanishing_point_of_road("models_256_china_road_v2/kar", c=3, seed=2)
-#show_feature_maps(load_model("models_256_china_road/learning_rate_0_001/kar_mse_skip_road_1600_50_8"), image_number=2)
-#test_model(load_model("models_256_china_artificial_v2/conv1/my_unet_mse_artificial_skip_china_6400_200_8"), single_class=3)
-#test_model(load_model("models_256_china_artificial_v2/conv2/my_unet_mse_2conv_artificial_skip_china_6400_200_8"), single_class=3)
-#test_model(load_model("models_256_china_artificial_v2/kar/kar_mse_artificial_skip_china_5600_175_8"), single_class=3)
+
+seed = 1
+#show_vanishing_point_of_road("models_poland_1024_multiclass/kar", c=-1, seed=seed, fcolor=one_hot_to_rgb)
+show_vanishing_point_of_road("models_poland_1024_multiclass/conv2", c=-1, seed=seed, fcolor=one_hot_to_rgb_poland)
+show_vanishing_point_of_road("models_poland_1024_multiclass/conv1", c=-1, seed=seed, fcolor=one_hot_to_rgb_poland)
+
+# image_number = 4
+# show_feature_maps(load_model("models_256_china_road_v2_3_models/kar/kar_mse_road_skip_china_3200_100_8"), image_number=image_number)
+# show_feature_maps(load_model("models_256_china_road_v2_3_models/kar/kar_mse_road_skip_china_6400_200_8"), image_number=image_number)
+# show_feature_maps(load_model("models_256_multi_class/kar/kar_mse_multi_class_skip_china_32_100_8"), image_number=image_number)
+# show_feature_maps(load_model("models_256_multi_class/kar/kar_mse_multi_class_skip_china_32_400_8"), image_number=image_number)
+# show_feature_maps(load_model("models_256_multi_class/conv2/my_unet_mse_multi_class_skip_china_32_100_8"), image_number=image_number)
+# show_feature_maps(load_model("models_256_multi_class/conv2/my_unet_mse_multi_class_skip_china_32_400_8"), image_number=image_number)
+
+#test_model(load_model("models_poland_1024_multiclass/conv2/my_unet_mse_multi_class_conv2_poland_48_8_1536"), single_class=-1)
+#test_model(load_model("models_poland_1024_multiclass/conv1/my_unet_mse_multi_class_poland_48_8_1536"), single_class=-1)
+#test_model(load_model("models_256_multi_class/kar/kar_mse_multi_class_skip_china_32_400_8"), single_class=-1)
 
