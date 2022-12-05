@@ -5,11 +5,11 @@ import numpy as np
 from PIL import Image
 from keras.saving.save import load_model
 from matplotlib import pyplot as plt
+import constants
+from image_load import one_hot_to_rgb, one_hot_to_rgb_single_class, ImageMaskGenerator, one_hot_to_rgb_poland
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-import constants
-from image_load import one_hot_to_rgb, one_hot_to_rgb_single_class, ImageMaskGenerator, one_hot_to_rgb_poland
 
 plt.plot()
 
@@ -60,7 +60,7 @@ def test_to_one_hot():
     plot_images([np.asarray(Image.open("China_Rural_256/Val/images_png/2550_5.png"))], mask, grayscale=False)
 
 
-def show_vanishing_point_of_road(folder="models_256_china_road/learning_rate_0_0003", samples=5, c=3, seed=0, figsize=4, fcolor=one_hot_to_rgb_single_class):
+def show_predictions_by_epoch(folder="models_256_china_road/learning_rate_0_0003", samples=5, c=3, seed=0, figsize=4, fcolor=one_hot_to_rgb_single_class):
     model_files = os.listdir(folder)
     n_images = samples
     cols = len(model_files) + 2
@@ -170,18 +170,23 @@ def visualize_intermediate_layer(model):
 
 seed = 1
 #show_vanishing_point_of_road("models_poland_1024_multiclass/kar", c=-1, seed=seed, fcolor=one_hot_to_rgb)
-show_vanishing_point_of_road("models_poland_1024_multiclass/conv2", c=-1, seed=seed, fcolor=one_hot_to_rgb_poland)
-show_vanishing_point_of_road("models_poland_1024_multiclass/conv1", c=-1, seed=seed, fcolor=one_hot_to_rgb_poland)
+show_predictions_by_epoch("models_256_china_road_v2/conv1", c=3, seed=seed, fcolor=one_hot_to_rgb_single_class)
+show_predictions_by_epoch("models_256_china_road_v2/conv2", c=3, seed=seed, fcolor=one_hot_to_rgb_single_class)
+show_predictions_by_epoch("models_256_china_road_v2/kar", c=3, seed=seed, fcolor=one_hot_to_rgb_single_class)
 
-# image_number = 4
-# show_feature_maps(load_model("models_256_china_road_v2_3_models/kar/kar_mse_road_skip_china_3200_100_8"), image_number=image_number)
-# show_feature_maps(load_model("models_256_china_road_v2_3_models/kar/kar_mse_road_skip_china_6400_200_8"), image_number=image_number)
-# show_feature_maps(load_model("models_256_multi_class/kar/kar_mse_multi_class_skip_china_32_100_8"), image_number=image_number)
-# show_feature_maps(load_model("models_256_multi_class/kar/kar_mse_multi_class_skip_china_32_400_8"), image_number=image_number)
-# show_feature_maps(load_model("models_256_multi_class/conv2/my_unet_mse_multi_class_skip_china_32_100_8"), image_number=image_number)
-# show_feature_maps(load_model("models_256_multi_class/conv2/my_unet_mse_multi_class_skip_china_32_400_8"), image_number=image_number)
+show_predictions_by_epoch("models_256_china_multi_class/conv1", c=-1, seed=seed, fcolor=one_hot_to_rgb)
+show_predictions_by_epoch("models_256_china_multi_class/conv2", c=-1, seed=seed, fcolor=one_hot_to_rgb)
+show_predictions_by_epoch("models_256_china_multi_class/kar", c=-1, seed=seed, fcolor=one_hot_to_rgb)
 
-#test_model(load_model("models_poland_1024_multiclass/conv2/my_unet_mse_multi_class_conv2_poland_48_8_1536"), single_class=-1)
-#test_model(load_model("models_poland_1024_multiclass/conv1/my_unet_mse_multi_class_poland_48_8_1536"), single_class=-1)
-#test_model(load_model("models_256_multi_class/kar/kar_mse_multi_class_skip_china_32_400_8"), single_class=-1)
+image_number = 4
+show_feature_maps(load_model("models_256_china_road_v2_3_models/kar/kar_mse_road_skip_china_3200_100_8"), image_number=image_number)
+show_feature_maps(load_model("models_256_china_road_v2_3_models/kar/kar_mse_road_skip_china_6400_200_8"), image_number=image_number)
+show_feature_maps(load_model("models_256_china_multi_class/kar/kar_mse_multi_class_skip_china_32_100_8"), image_number=image_number)
+show_feature_maps(load_model("models_256_china_multi_class/kar/kar_mse_multi_class_skip_china_32_400_8"), image_number=image_number)
+show_feature_maps(load_model("models_256_china_multi_class/conv2/my_unet_mse_multi_class_skip_china_32_100_8"), image_number=image_number)
+show_feature_maps(load_model("models_256_china_multi_class/conv2/my_unet_mse_multi_class_skip_china_32_400_8"), image_number=image_number)
 
+#Metrics
+test_model(load_model("models_poland_1024_multiclass/conv2/my_unet_mse_multi_class_conv2_poland_48_8_1536"), single_class=-1)
+test_model(load_model("models_poland_1024_multiclass/conv1/my_unet_mse_multi_class_poland_48_8_1536"), single_class=-1)
+test_model(load_model("models_256_china_multi_class/kar/kar_mse_multi_class_skip_china_32_400_8"), single_class=-1)

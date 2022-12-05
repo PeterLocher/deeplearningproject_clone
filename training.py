@@ -1,5 +1,6 @@
 import os
 
+#run pip install keras-unet
 import keras_unet.models as km
 import keras_unet.utils as ku
 from keras import metrics as met
@@ -49,8 +50,7 @@ def train_g(model, samples_per_epoch, epochs, batch_size, file_prefix="model", v
     model.save(file_prefix + "_poland_" + str(epochs) + "_" + str(batch_size) + "_" + str(samples_per_epoch * epochs))
     return history
 
-#Poland all labels
-train_km_unet(32, 32, 8, img_size=1024, num_classes=6, prefix="multi_class", skip=False)
-train_km_unet(32, 48, 8, img_size=1024, num_classes=6, prefix="multi_class", skip=False)
 
+#train_km_unet(32, 32, 8, img_size=1024, num_classes=6, prefix="multi_class", skip=False)
+#train_km_unet(32, 48, 8, img_size=1024, num_classes=6, prefix="multi_class", skip=False)
 #train_km_unet(32, 64, 8, img_size=1024, single_class=2)
