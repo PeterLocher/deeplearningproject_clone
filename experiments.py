@@ -169,10 +169,9 @@ def visualize_intermediate_layer(model):
 #256 building seeds china: 2, 7, 9
 
 seed = 1
-#show_vanishing_point_of_road("models_poland_1024_multiclass/kar", c=-1, seed=seed, fcolor=one_hot_to_rgb)
-show_predictions_by_epoch("models_256_china_road_v2/conv1", c=3, seed=seed, fcolor=one_hot_to_rgb_single_class)
-show_predictions_by_epoch("models_256_china_road_v2/conv2", c=3, seed=seed, fcolor=one_hot_to_rgb_single_class)
-show_predictions_by_epoch("models_256_china_road_v2/kar", c=3, seed=seed, fcolor=one_hot_to_rgb_single_class)
+show_predictions_by_epoch("models_256_china_road_v2_3_models/conv1", c=3, seed=seed, fcolor=one_hot_to_rgb_single_class)
+show_predictions_by_epoch("models_256_china_road_v2_3_models/conv2", c=3, seed=seed, fcolor=one_hot_to_rgb_single_class)
+show_predictions_by_epoch("models_256_china_road_v2_3_models/kar_no_drop", c=3, seed=seed, fcolor=one_hot_to_rgb_single_class)
 
 show_predictions_by_epoch("models_256_china_multi_class/conv1", c=-1, seed=seed, fcolor=one_hot_to_rgb)
 show_predictions_by_epoch("models_256_china_multi_class/conv2", c=-1, seed=seed, fcolor=one_hot_to_rgb)
